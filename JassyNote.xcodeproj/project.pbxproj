@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000001 /* JassyNoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* JassyNoteApp.swift */; };
+		A00000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* ContentView.swift */; };
+		A00000000000000000000003 /* HandoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* HandoutViewModel.swift */; };
+		A00000000000000000000004 /* SlideSourceImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000014 /* SlideSourceImporter.swift */; };
+		A00000000000000000000005 /* PDFSlideImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000015 /* PDFSlideImporter.swift */; };
+		A00000000000000000000006 /* PowerPointSlideImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* PowerPointSlideImporter.swift */; };
+		A00000000000000000000007 /* SlideImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* SlideImage.swift */; };
+		A00000000000000000000008 /* LayoutSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* LayoutSettings.swift */; };
+		A00000000000000000000009 /* GeneratedPageLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* GeneratedPageLayout.swift */; };
+		A0000000000000000000000A /* TwoColumnLayoutEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* TwoColumnLayoutEngine.swift */; };
+		A0000000000000000000000B /* PDFHandoutRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* PDFHandoutRenderer.swift */; };
+		A0000000000000000000000C /* PDFPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001C /* PDFPreviewView.swift */; };
+		A0000000000000000000002C /* DeckColorAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000002D /* DeckColorAnalyzer.swift */; };
+		A0000000000000000000002E /* SlideColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000002F /* SlideColorPickerView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A0000000000000000000000E /* JassyNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JassyNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000011 /* JassyNoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JassyNoteApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* HandoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandoutViewModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000014 /* SlideSourceImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideSourceImporter.swift; sourceTree = "<group>"; };
+		A00000000000000000000015 /* PDFSlideImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSlideImporter.swift; sourceTree = "<group>"; };
+		A00000000000000000000016 /* PowerPointSlideImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerPointSlideImporter.swift; sourceTree = "<group>"; };
+		A00000000000000000000017 /* SlideImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideImage.swift; sourceTree = "<group>"; };
+		A00000000000000000000018 /* LayoutSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutSettings.swift; sourceTree = "<group>"; };
+		A00000000000000000000019 /* GeneratedPageLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedPageLayout.swift; sourceTree = "<group>"; };
+		A0000000000000000000001A /* TwoColumnLayoutEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoColumnLayoutEngine.swift; sourceTree = "<group>"; };
+		A0000000000000000000001B /* PDFHandoutRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFHandoutRenderer.swift; sourceTree = "<group>"; };
+		A0000000000000000000001C /* PDFPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPreviewView.swift; sourceTree = "<group>"; };
+		A0000000000000000000001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0000000000000000000002D /* DeckColorAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckColorAnalyzer.swift; sourceTree = "<group>"; };
+		A0000000000000000000002F /* SlideColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideColorPickerView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A0000000000000000000001E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A0000000000000000000001F = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000020 /* JassyNote */,
+				A00000000000000000000021 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000020 /* JassyNote */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000011 /* JassyNoteApp.swift */,
+				A00000000000000000000012 /* ContentView.swift */,
+				A00000000000000000000013 /* HandoutViewModel.swift */,
+				A00000000000000000000014 /* SlideSourceImporter.swift */,
+				A00000000000000000000015 /* PDFSlideImporter.swift */,
+				A00000000000000000000016 /* PowerPointSlideImporter.swift */,
+				A00000000000000000000017 /* SlideImage.swift */,
+				A00000000000000000000018 /* LayoutSettings.swift */,
+				A0000000000000000000002D /* DeckColorAnalyzer.swift */,
+				A00000000000000000000019 /* GeneratedPageLayout.swift */,
+				A0000000000000000000001A /* TwoColumnLayoutEngine.swift */,
+				A0000000000000000000001B /* PDFHandoutRenderer.swift */,
+				A0000000000000000000001C /* PDFPreviewView.swift */,
+				A0000000000000000000002F /* SlideColorPickerView.swift */,
+				A0000000000000000000001D /* Info.plist */,
+			);
+			path = JassyNote;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000021 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000000E /* JassyNote.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000022 /* JassyNote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000023 /* Build configuration list for PBXNativeTarget "JassyNote" */;
+			buildPhases = (
+				A00000000000000000000024 /* Sources */,
+				A0000000000000000000001E /* Frameworks */,
+				A00000000000000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JassyNote;
+			productName = JassyNote;
+			productReference = A0000000000000000000000E /* JassyNote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000026 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A00000000000000000000022 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A00000000000000000000027 /* Build configuration list for PBXProject "JassyNote" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A0000000000000000000001F;
+			productRefGroup = A00000000000000000000021 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00000000000000000000022 /* JassyNote */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00000000000000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A00000000000000000000024 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000002 /* ContentView.swift in Sources */,
+				A00000000000000000000009 /* GeneratedPageLayout.swift in Sources */,
+				A00000000000000000000003 /* HandoutViewModel.swift in Sources */,
+				A0000000000000000000002C /* DeckColorAnalyzer.swift in Sources */,
+				A00000000000000000000008 /* LayoutSettings.swift in Sources */,
+				A0000000000000000000000B /* PDFHandoutRenderer.swift in Sources */,
+				A0000000000000000000000C /* PDFPreviewView.swift in Sources */,
+				A00000000000000000000005 /* PDFSlideImporter.swift in Sources */,
+				A00000000000000000000006 /* PowerPointSlideImporter.swift in Sources */,
+				A0000000000000000000002E /* SlideColorPickerView.swift in Sources */,
+				A00000000000000000000007 /* SlideImage.swift in Sources */,
+				A00000000000000000000004 /* SlideSourceImporter.swift in Sources */,
+				A0000000000000000000000A /* TwoColumnLayoutEngine.swift in Sources */,
+				A00000000000000000000001 /* JassyNoteApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A00000000000000000000028 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A00000000000000000000029 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A0000000000000000000002A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W545KUH72A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JassyNote/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jedlordy.jassynote;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A0000000000000000000002B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W545KUH72A;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JassyNote/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jedlordy.jassynote;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00000000000000000000023 /* Build configuration list for PBXNativeTarget "JassyNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0000000000000000000002A /* Debug */,
+				A0000000000000000000002B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000027 /* Build configuration list for PBXProject "JassyNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000028 /* Debug */,
+				A00000000000000000000029 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000026 /* Project object */;
+}
