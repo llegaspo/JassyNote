@@ -74,31 +74,50 @@ struct PDFSlideImporter: SlideSourceImporter {
     }
 
     private func renderImage(for page: PDFPage, bounds: CGRect, size: CGSize) -> UIImage? {
+        page.displaysAnnotations = true
+
+        let targetSize = CGSize(
+            width: max(1, size.width),
+            height: max(1, size.height)
+        )
+
+        let image = page.thumbnail(of: targetSize, for: .mediaBox)
+
+        guard image.size.width > 0, image.size.height > 0 else {
+            return nil
+        }
+
+        if image.size == targetSize {
+            return image
+        }
+
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = 1
         format.opaque = true
 
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        let image = renderer.image { context in
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        return renderer.image { context in
             UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
+            context.fill(CGRect(origin: .zero, size: targetSize))
 
-            let cgContext = context.cgContext
-            cgContext.saveGState()
-            cgContext.translateBy(x: 0, y: size.height)
-            cgContext.scaleBy(x: 1, y: -1)
-            cgContext.scaleBy(x: size.width / bounds.width, y: size.height / bounds.height)
-            cgContext.translateBy(x: -bounds.minX, y: -bounds.minY)
+            let drawRect = aspectFitRect(for: image.size, in: targetSize)
+            image.draw(in: drawRect)
+        }
+    }
 
-            if let pageRef = page.pageRef {
-                cgContext.drawPDFPage(pageRef)
-            } else {
-                page.draw(with: .mediaBox, to: cgContext)
-            }
-
-            cgContext.restoreGState()
+    private func aspectFitRect(for imageSize: CGSize, in containerSize: CGSize) -> CGRect {
+        guard imageSize.width > 0, imageSize.height > 0,
+              containerSize.width > 0, containerSize.height > 0 else {
+            return CGRect(origin: .zero, size: containerSize)
         }
 
-        return image
+        let scale = min(containerSize.width / imageSize.width, containerSize.height / imageSize.height)
+        let fittedSize = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
+        let origin = CGPoint(
+            x: (containerSize.width - fittedSize.width) / 2,
+            y: (containerSize.height - fittedSize.height) / 2
+        )
+
+        return CGRect(origin: origin, size: fittedSize)
     }
 }

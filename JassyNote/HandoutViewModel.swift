@@ -22,9 +22,32 @@ final class HandoutViewModel: ObservableObject {
 
     private let pdfImporter = PDFSlideImporter()
     private let powerPointImporter = PowerPointSlideImporter()
+    private let layoutEngine = TwoColumnLayoutEngine()
 
     var slideCountDescription: String {
         importedSlides.isEmpty ? "No slides loaded" : "\(importedSlides.count) slides loaded"
+    }
+
+    var resolvedColumnCount: Int {
+        guard !importedSlides.isEmpty else {
+            return settings.columns
+        }
+
+        return layoutEngine.resolvedColumnCount(for: importedSlides, settings: settings)
+    }
+
+    var readabilityStatus: String? {
+        guard !importedSlides.isEmpty else {
+            return nil
+        }
+
+        let effectiveColumns = resolvedColumnCount
+        guard effectiveColumns < settings.columns else {
+            return nil
+        }
+
+        let label = effectiveColumns == 1 ? "column" : "columns"
+        return "Using \(effectiveColumns) \(label) to keep slides at least \(Int(settings.minimumReadableSlideHeight)) pt tall."
     }
 
     var canGenerate: Bool {

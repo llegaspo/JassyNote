@@ -2,21 +2,20 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     @StateObject private var viewModel = HandoutViewModel()
     @State private var showingImporter = false
     @State private var showingColorPicker = false
+    @State private var showingCompactSettings = false
 
     var body: some View {
-        NavigationSplitView {
-            Form {
-                sourceSection
-                layoutSection
-                actionsSection
+        Group {
+            if usesCompactLayout {
+                compactLayout
+            } else {
+                regularLayout
             }
-            .navigationTitle("Paper Notes")
-        } detail: {
-            previewSection
-                .navigationTitle("Preview")
         }
         .fileImporter(
             isPresented: $showingImporter,
@@ -47,13 +46,116 @@ struct ContentView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingCompactSettings) {
+            compactSettingsSheet
+        }
+    }
+
+    private var usesCompactLayout: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone || horizontalSizeClass == .compact
+    }
+
+    private var regularLayout: some View {
+        NavigationSplitView {
+            settingsForm(includeActions: true)
+                .navigationTitle("Paper Notes")
+        } detail: {
+            previewPanel
+                .navigationTitle("Preview")
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        regenerateButton(style: .titleOnly)
+
+                        if let generatedPDFURL = viewModel.generatedPDFURL {
+                            ShareLink(item: generatedPDFURL) {
+                                Image(systemName: "square.and.arrow.up")
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
+    private var compactLayout: some View {
+        NavigationStack {
+            ZStack {
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
+
+                compactPreviewPanel
+            }
+            .navigationTitle("JassyNote")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingImporter = true
+                    } label: {
+                        Label("Import", systemImage: "square.and.arrow.down")
+                    }
+                    .disabled(viewModel.isImporting || viewModel.isGenerating)
+                }
+
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showingCompactSettings = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+
+                    if let generatedPDFURL = viewModel.generatedPDFURL {
+                        ShareLink(item: generatedPDFURL) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                compactBottomBar
+            }
+        }
+    }
+
+    private var compactSettingsSheet: some View {
+        NavigationStack {
+            settingsForm(includeActions: false)
+                .navigationTitle("Layout")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Close") {
+                            showingCompactSettings = false
+                        }
+                    }
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        regenerateButton(style: .titleOnly)
+                    }
+                }
+        }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+    }
+
+    private func settingsForm(includeActions: Bool) -> some View {
+        Form {
+            sourceSection
+            layoutSection
+
+            if includeActions {
+                actionsSection
+            }
+        }
     }
 
     private var sourceSection: some View {
         Section("Source") {
-            Button("Import PDF or PowerPoint") {
+            Button {
                 showingImporter = true
+            } label: {
+                Label("Import PDF or PowerPoint", systemImage: "square.and.arrow.down")
             }
+            .disabled(viewModel.isImporting || viewModel.isGenerating)
 
             LabeledContent("File", value: viewModel.sourceFileName)
             LabeledContent("Status", value: viewModel.slideCountDescription)
@@ -80,6 +182,12 @@ struct ContentView: View {
 
             Stepper(value: $viewModel.settings.columns, in: 1...4) {
                 LabeledContent("Columns", value: "\(viewModel.settings.columns)")
+            }
+
+            if let readabilityStatus = viewModel.readabilityStatus {
+                Text(readabilityStatus)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -114,7 +222,7 @@ struct ContentView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 LabeledContent("Minimum Slide Height", value: "\(Int(viewModel.settings.minimumReadableSlideHeight)) pt")
-                Slider(value: $viewModel.settings.minimumReadableSlideHeight.doubleBinding, in: 48...220, step: 2)
+                Slider(value: $viewModel.settings.minimumReadableSlideHeight.doubleBinding, in: 72...220, step: 2)
             }
 
             Toggle("Slide Border", isOn: $viewModel.settings.showsSlideBorder)
@@ -162,17 +270,18 @@ struct ContentView: View {
                     Text(style.rawValue).tag(style)
                 }
             }
+
+            Picker("PDF Quality", selection: $viewModel.settings.outputQuality) {
+                ForEach(OutputQualityOption.allCases) { quality in
+                    Text(quality.rawValue).tag(quality)
+                }
+            }
         }
     }
 
     private var actionsSection: some View {
         Section("Actions") {
-            Button("Regenerate PDF") {
-                Task {
-                    await viewModel.regenerate()
-                }
-            }
-            .disabled(!viewModel.canGenerate)
+            regenerateButton(style: .titleOnly)
 
             if viewModel.isGenerating {
                 ProgressView("Generating PDF…")
@@ -186,25 +295,11 @@ struct ContentView: View {
         }
     }
 
-    private var previewSection: some View {
+    private var previewPanel: some View {
         Group {
             if let generatedPDFURL = viewModel.generatedPDFURL {
                 PDFPreviewView(url: generatedPDFURL)
                     .ignoresSafeArea(edges: .bottom)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .topBarTrailing) {
-                            Button("Regenerate") {
-                                Task {
-                                    await viewModel.regenerate()
-                                }
-                            }
-                            .disabled(!viewModel.canGenerate)
-
-                            ShareLink(item: generatedPDFURL) {
-                                Image(systemName: "square.and.arrow.up")
-                            }
-                        }
-                    }
             } else if viewModel.isImporting || viewModel.isGenerating {
                 ProgressView("Working…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -217,6 +312,187 @@ struct ContentView: View {
             }
         }
     }
+
+    private var compactPreviewPanel: some View {
+        Group {
+            if let generatedPDFURL = viewModel.generatedPDFURL {
+                ZStack(alignment: .top) {
+                    PDFPreviewView(url: generatedPDFURL)
+
+                    compactStatusCard
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                }
+            } else if viewModel.isImporting || viewModel.isGenerating {
+                ProgressView("Working…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Readable notes from dense slide decks.")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Text("Import a lecture deck, keep small text legible, and export a lighter PDF that is easier to share.")
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        VStack(spacing: 12) {
+                            compactFeatureRow(
+                                title: "Readability-first layout",
+                                message: "The app will reduce columns automatically when your minimum slide height would otherwise be violated."
+                            )
+
+                            compactFeatureRow(
+                                title: "Smaller shared files",
+                                message: "Export quality stays adjustable so you can trade some sharpness for a lower file size when needed."
+                            )
+                        }
+
+                        Button {
+                            showingImporter = true
+                        } label: {
+                            Label("Import a Deck", systemImage: "square.and.arrow.down")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .disabled(viewModel.isImporting || viewModel.isGenerating)
+                    }
+                    .padding(20)
+                }
+            }
+        }
+    }
+
+    private var compactStatusCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.sourceFileName)
+                        .font(.headline)
+                        .lineLimit(1)
+
+                    Text(viewModel.slideCountDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Button {
+                    showingCompactSettings = true
+                } label: {
+                    Label("Layout", systemImage: "slider.horizontal.3")
+                }
+                .buttonStyle(.bordered)
+            }
+
+            if let readabilityStatus = viewModel.readabilityStatus {
+                Label(readabilityStatus, systemImage: "textformat.size")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+        )
+    }
+
+    private func compactFeatureRow(title: String, message: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.headline)
+
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var compactBottomBar: some View {
+        VStack(spacing: 10) {
+            if viewModel.isGenerating {
+                ProgressView("Generating PDF…")
+            }
+
+            HStack(spacing: 10) {
+                Button {
+                    showingCompactSettings = true
+                } label: {
+                    Label("Layout", systemImage: "slider.horizontal.3")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+
+                regenerateButton(style: .titleAndIcon)
+                    .frame(maxWidth: .infinity)
+
+                if let generatedPDFURL = viewModel.generatedPDFURL {
+                    ShareLink(item: generatedPDFURL) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 8)
+        .background(.thinMaterial)
+    }
+
+    private func regenerateButton(style: ButtonLabelStyle) -> some View {
+        Group {
+            if style == .titleOnly {
+                Button {
+                    Task {
+                        await viewModel.regenerate()
+                    }
+                } label: {
+                    buttonLabel("Regenerate", systemImage: "arrow.clockwise", style: style)
+                }
+            } else {
+                Button {
+                    Task {
+                        await viewModel.regenerate()
+                    }
+                } label: {
+                    buttonLabel("Regenerate", systemImage: "arrow.clockwise", style: style)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            }
+        }
+        .disabled(!viewModel.canGenerate)
+    }
+
+    @ViewBuilder
+    private func buttonLabel(_ title: String, systemImage: String, style: ButtonLabelStyle) -> some View {
+        switch style {
+        case .titleOnly:
+            Text(title)
+        case .titleAndIcon:
+            Label(title, systemImage: systemImage)
+        }
+    }
+}
+
+private enum ButtonLabelStyle: Equatable {
+    case titleOnly
+    case titleAndIcon
 }
 
 private extension Binding where Value == CGFloat {

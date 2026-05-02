@@ -31,6 +31,36 @@ enum PageBackgroundStyle: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum OutputQualityOption: String, CaseIterable, Identifiable {
+    case best = "Best"
+    case balanced = "Balanced"
+    case compact = "Compact"
+
+    var id: String { rawValue }
+
+    var targetDPI: CGFloat {
+        switch self {
+        case .best:
+            return 220
+        case .balanced:
+            return 160
+        case .compact:
+            return 110
+        }
+    }
+
+    var pdfJPEGCompressionQuality: CGFloat {
+        switch self {
+        case .best:
+            return 0.9
+        case .balanced:
+            return 0.68
+        case .compact:
+            return 0.48
+        }
+    }
+}
+
 enum PaperColorMode: String, CaseIterable, Identifiable {
     case white = "White"
     case deckDominant = "Match Deck"
@@ -55,10 +85,11 @@ struct LayoutSettings: Equatable {
     var pageMargins: PageMargins = .standard
     var columnGutter: CGFloat = 12
     var verticalSpacing: CGFloat = 0
-    var minimumReadableSlideHeight: CGFloat = 72
+    var minimumReadableSlideHeight: CGFloat = 120
     var showsSlideBorder = false
     var paperColorMode: PaperColorMode = .white
     var backgroundStyle: PageBackgroundStyle = .none
+    var outputQuality: OutputQualityOption = .balanced
 
     var outputPageSize: CGSize {
         let size = paperSize.baseSize

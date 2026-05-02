@@ -6,13 +6,14 @@ struct TwoColumnLayoutEngine {
             return []
         }
 
+        let resolvedColumns = resolvedColumnCount(for: slides, settings: settings)
         let pageSize = settings.outputPageSize
-        let totalGutterWidth = CGFloat(max(settings.columns - 1, 0)) * settings.columnGutter
+        let totalGutterWidth = CGFloat(max(resolvedColumns - 1, 0)) * settings.columnGutter
         let usableWidth = pageSize.width - settings.pageMargins.leading - settings.pageMargins.trailing - totalGutterWidth
-        let columnWidth = usableWidth / CGFloat(settings.columns)
+        let columnWidth = usableWidth / CGFloat(resolvedColumns)
         let columnHeight = pageSize.height - settings.pageMargins.top - settings.pageMargins.bottom
 
-        guard settings.columns > 0, columnWidth > 0, columnHeight > 0 else {
+        guard resolvedColumns > 0, columnWidth > 0, columnHeight > 0 else {
             throw SlideImportError.invalidLayout("Layout settings produce a non-printable page area.")
         }
 
@@ -23,7 +24,7 @@ struct TwoColumnLayoutEngine {
         while nextSlideIndex < slides.count {
             var placements: [SlidePlacement] = []
 
-            for column in 0..<settings.columns {
+            for column in 0..<resolvedColumns {
                 guard nextSlideIndex < slides.count else {
                     break
                 }
@@ -57,6 +58,18 @@ struct TwoColumnLayoutEngine {
         }
 
         return pages
+    }
+
+    func resolvedColumnCount(for slides: [SlideImage], settings: LayoutSettings) -> Int {
+        let requestedColumns = max(1, settings.columns)
+
+        for candidate in stride(from: requestedColumns, through: 1, by: -1) {
+            if canSatisfyMinimumReadableHeight(for: slides, settings: settings, columns: candidate) {
+                return candidate
+            }
+        }
+
+        return 1
     }
 
     private func makeColumnPlacements(
@@ -147,6 +160,41 @@ struct TwoColumnLayoutEngine {
             width: drawWidth,
             height: drawHeight
         )
+    }
+
+    private func canSatisfyMinimumReadableHeight(
+        for slides: [SlideImage],
+        settings: LayoutSettings,
+        columns: Int
+    ) -> Bool {
+        guard columns > 0 else {
+            return false
+        }
+
+        let pageSize = settings.outputPageSize
+        let totalGutterWidth = CGFloat(max(columns - 1, 0)) * settings.columnGutter
+        let usableWidth = pageSize.width - settings.pageMargins.leading - settings.pageMargins.trailing - totalGutterWidth
+        let columnWidth = usableWidth / CGFloat(columns)
+        let columnHeight = pageSize.height - settings.pageMargins.top - settings.pageMargins.bottom
+        let minimumReadableHeight = settings.minimumReadableSlideHeight
+
+        guard columnWidth > 0, columnHeight > 0 else {
+            return false
+        }
+
+        for slide in slides {
+            let pageSize = slide.resolvedPageSize
+            guard pageSize.width > 0, pageSize.height > 0 else {
+                continue
+            }
+
+            let scaledHeight = min(pageSize.height * (columnWidth / pageSize.width), columnHeight)
+            if scaledHeight + 0.5 < minimumReadableHeight {
+                return false
+            }
+        }
+
+        return true
     }
 }
 
