@@ -23,6 +23,7 @@ final class HandoutViewModel: ObservableObject {
     private let pdfImporter = PDFSlideImporter()
     private let powerPointImporter = PowerPointSlideImporter()
     private let layoutEngine = TwoColumnLayoutEngine()
+    private var temporarySourceURLs: Set<URL> = []
 
     var slideCountDescription: String {
         importedSlides.isEmpty ? "No slides loaded" : "\(importedSlides.count) slides loaded"
@@ -69,6 +70,7 @@ final class HandoutViewModel: ObservableObject {
     }
 
     func importDocument(from url: URL) {
+        removeTemporarySourceFiles()
         sourceFileName = url.lastPathComponent
         generatedPDFURL = nil
         importedSlides = []
@@ -79,6 +81,7 @@ final class HandoutViewModel: ObservableObject {
                 let importer = try resolveImporter(for: url)
                 let slides = try await importer.importSlides(from: url)
                 importedSlides = slides
+                temporarySourceURLs = Set(slides.compactMap(\.sourcePDFURL))
                 detectedDeckColor = DeckColorAnalyzer().dominantPaperColor(from: slides)
                 pickedPaperColor = detectedDeckColor
                 isImporting = false
@@ -164,5 +167,12 @@ final class HandoutViewModel: ObservableObject {
         case .pickedFromSlide:
             return pickedPaperColor
         }
+    }
+
+    private func removeTemporarySourceFiles() {
+        for url in temporarySourceURLs {
+            try? FileManager.default.removeItem(at: url)
+        }
+        temporarySourceURLs.removeAll()
     }
 }

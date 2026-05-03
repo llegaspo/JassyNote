@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import PDFKit
 import UIKit
 
 struct PDFHandoutRenderer {
@@ -12,8 +13,6 @@ struct PDFHandoutRenderer {
         guard !layouts.isEmpty else {
             throw SlideImportError.outputGenerationFailed
         }
-
-        let preparedSlides = prepareSlides(slides: slides, layouts: layouts, settings: settings)
 
         let outputURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("JassyNote-Handout-\(UUID().uuidString)")
@@ -28,6 +27,7 @@ struct PDFHandoutRenderer {
         ]
 
         let renderer = UIGraphicsPDFRenderer(bounds: pageBounds, format: rendererFormat)
+        var sourceDocuments: [URL: PDFDocument] = [:]
 
         do {
             try renderer.writePDF(to: outputURL) { context in
@@ -43,9 +43,19 @@ struct PDFHandoutRenderer {
                     )
 
                     for placement in layout.placements {
-                        let slideImage = preparedSlides[placement.slideIndex] ?? slides[placement.slideIndex].image
-                        cgContext.interpolationQuality = .high
-                        slideImage.draw(in: placement.imageFrame)
+                        autoreleasepool {
+                            let slide = slides[placement.slideIndex]
+                            let targetPixelSize = targetPixelSize(for: placement, settings: settings)
+                            let slideImage = imageForPlacement(
+                                slide: slide,
+                                targetPixelSize: targetPixelSize,
+                                settings: settings,
+                                sourceDocuments: &sourceDocuments
+                            )
+
+                            cgContext.interpolationQuality = .high
+                            slideImage.draw(in: placement.imageFrame)
+                        }
 
                         if settings.showsSlideBorder {
                             cgContext.saveGState()
@@ -64,43 +74,64 @@ struct PDFHandoutRenderer {
         return outputURL
     }
 
-    private func prepareSlides(
-        slides: [SlideImage],
-        layouts: [GeneratedPageLayout],
-        settings: LayoutSettings
-    ) -> [Int: UIImage] {
+    private func targetPixelSize(for placement: SlidePlacement, settings: LayoutSettings) -> CGSize {
         let pixelsPerPoint = settings.outputQuality.targetDPI / 72
-        var largestPlacementBySlideIndex: [Int: CGSize] = [:]
+        return CGSize(
+            width: max(1, placement.imageFrame.width * pixelsPerPoint),
+            height: max(1, placement.imageFrame.height * pixelsPerPoint)
+        )
+    }
 
-        for placement in layouts.flatMap(\.placements) {
-            let targetSize = CGSize(
-                width: max(1, placement.imageFrame.width * pixelsPerPoint),
-                height: max(1, placement.imageFrame.height * pixelsPerPoint)
-            )
+    private func imageForPlacement(
+        slide: SlideImage,
+        targetPixelSize: CGSize,
+        settings: LayoutSettings,
+        sourceDocuments: inout [URL: PDFDocument]
+    ) -> UIImage {
+        let sourceImage = renderedSourceImage(
+            for: slide,
+            targetPixelSize: targetPixelSize,
+            sourceDocuments: &sourceDocuments
+        ) ?? slide.image
 
-            if let existingSize = largestPlacementBySlideIndex[placement.slideIndex] {
-                largestPlacementBySlideIndex[placement.slideIndex] = CGSize(
-                    width: max(existingSize.width, targetSize.width),
-                    height: max(existingSize.height, targetSize.height)
-                )
-            } else {
-                largestPlacementBySlideIndex[placement.slideIndex] = targetSize
+        return compressedImage(
+            from: sourceImage,
+            targetPixelSize: targetPixelSize,
+            jpegQuality: settings.outputQuality.pdfJPEGCompressionQuality
+        )
+    }
+
+    private func renderedSourceImage(
+        for slide: SlideImage,
+        targetPixelSize: CGSize,
+        sourceDocuments: inout [URL: PDFDocument]
+    ) -> UIImage? {
+        guard let sourcePDFURL = slide.sourcePDFURL else {
+            return nil
+        }
+
+        let document: PDFDocument
+        if let cachedDocument = sourceDocuments[sourcePDFURL] {
+            document = cachedDocument
+        } else {
+            guard let loadedDocument = PDFDocument(url: sourcePDFURL) else {
+                return nil
             }
+
+            sourceDocuments[sourcePDFURL] = loadedDocument
+            document = loadedDocument
         }
 
-        var preparedSlides: [Int: UIImage] = [:]
-        preparedSlides.reserveCapacity(slides.count)
-
-        for (slideIndex, targetSize) in largestPlacementBySlideIndex {
-            let sourceImage = slides[slideIndex].image
-            preparedSlides[slideIndex] = compressedImage(
-                from: sourceImage,
-                targetPixelSize: targetSize,
-                jpegQuality: settings.outputQuality.pdfJPEGCompressionQuality
-            )
+        guard let page = document.page(at: slide.index) else {
+            return nil
         }
 
-        return preparedSlides
+        let bounds = page.bounds(for: .mediaBox)
+        return PDFPageRasterizer().render(
+            page: page,
+            bounds: bounds,
+            targetPixelSize: targetPixelSize
+        )
     }
 
     private func compressedImage(from image: UIImage, targetPixelSize: CGSize, jpegQuality: CGFloat) -> UIImage {
